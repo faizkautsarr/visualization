@@ -25,9 +25,7 @@ export default function BarChartVisualization({ data }) {
       <div className="text-gray-700 text-base"> Data sources: </div>
       <div className="text-gray-500 text-sm px-1 mb-1">
         The ID of a data contributor. Identifies the network considered to be
-        the preferred source of information for this event. Below are a few
-        common network contributor codes: ak, at, ci, hv, ld, mb, nc, nm, nn,
-        pr, pt, se, us, uu, uw (only these values used on this visualization).
+        the preferred source of information for this event.
       </div>
       <div style={{ width: "100vw" }}>
         <Bar data={data}></Bar>
