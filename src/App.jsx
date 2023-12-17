@@ -4,24 +4,32 @@ import DoughnutChartVisualization from "./components/DoughnutChartVisualization"
 import LineChartVisualization from "./components/LineChartVisualization";
 import BubbleChartVisualization from "./components/BubbleChartVisualization";
 import BarChartVisualization from "./components/BarChartVisualization";
-import PolarAreaChartVisualization from "./components/PolarAreaChartVisualizatio";
+import PolarAreaChartVisualization from "./components/PolarAreaChartVisualization";
+import ScatterChartVisualization from "./components/ScatterChartVisualization";
+import RadarChartVisualization from "./components/RadarChartVisualization";
 import "./App.css";
 import axios from "axios";
 import { generateColors } from "./utils/commons";
+import Lottie from "lottie-react";
+import animationData from "./assets/images/loader.json";
 
 export default function App() {
+  const [isLoading, setIsLoading] = useState(true);
   const [allData, setAllData] = useState([]);
   const [pieChartData, setPieChartData] = useState({});
   const [barChartData, setBarChartData] = useState({});
   const [doughnutData, setDoughnutData] = useState({});
   const [lineData, setLineData] = useState({});
   const [bubbleData, setBubbleData] = useState({});
+  const [radarData, setRadarData] = useState({});
+  const [scatterData, setScatterData] = useState({});
   const [polarAreaData, setPolarAreaData] = useState({});
 
   const handleRedirect = () => {
     window.location.href = "https://www.usgs.gov/";
   };
   async function getData() {
+    setIsLoading(true);
     await axios
       .get(
         "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=2023-12-14&endtime=2023-12-15"
@@ -62,6 +70,19 @@ export default function App() {
           datasets: [
             {
               label: "Sources",
+              data: values,
+              backgroundColor: "rgba(53, 162, 235, 0.5)",
+            },
+          ],
+        });
+        break;
+
+      case "radar":
+        setRadarData({
+          labels: labels,
+          datasets: [
+            {
+              label: "Places",
               data: values,
               backgroundColor: "rgba(53, 162, 235, 0.5)",
             },
@@ -112,6 +133,18 @@ export default function App() {
         });
         break;
 
+      case "scatter":
+        setScatterData({
+          datasets: [
+            {
+              label: "Lat, Long",
+              data: objectData,
+              backgroundColor: "rgba(255, 99, 132, 0.5)",
+            },
+          ],
+        });
+        break;
+
       default:
         colors = generateColors(labels.length);
         setPolarAreaData({
@@ -133,10 +166,11 @@ export default function App() {
     var pie = {};
     var doughnut = {};
     var line = {};
+    var polarArea = {};
+    var scatter = [];
+    var radar = {};
     var bubble = [];
     var bar = {};
-    var polarArea = {};
-    var loc = {};
 
     for (var i = 0; i < dataTemp.length; i++) {
       pie[dataTemp[i].properties.status] =
@@ -149,6 +183,11 @@ export default function App() {
         x: dataTemp[i].geometry.coordinates[0],
         y: dataTemp[i].geometry.coordinates[1],
         r: dataTemp[i].geometry.coordinates[2] / 10,
+      });
+
+      scatter.push({
+        x: dataTemp[i].geometry.coordinates[0],
+        y: dataTemp[i].geometry.coordinates[1],
       });
 
       line[dataTemp[i].id] = dataTemp[i].properties.mag;
@@ -166,13 +205,11 @@ export default function App() {
         polarArea[typesArr[iii]] = (polarArea[typesArr[iii]] || 0) + 1;
       }
 
-      var locTemp = dataTemp[i].properties.place.includes(",")
+      var radarTemp = dataTemp[i].properties.place.includes(",")
         ? dataTemp[i].properties.place.split(",")[1].slice(1)
         : dataTemp[i].properties.place;
-      loc[locTemp] = (loc[locTemp] || 0) + 1;
+      radar[radarTemp] = (radar[radarTemp] || 0) + 1;
     }
-
-    console.log(loc);
 
     buildToVisualizeData(pie, "pie");
     buildToVisualizeData(doughnut, "doughnut");
@@ -180,6 +217,13 @@ export default function App() {
     buildToVisualizeData(bubble, "bubble");
     buildToVisualizeData(bar, "bar");
     buildToVisualizeData(polarArea, "polarArea");
+    buildToVisualizeData(scatter, "scatter");
+    buildToVisualizeData(radar, "radar");
+
+    // for smoother behaviour
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 2000);
   }
 
   useEffect(() => {
@@ -194,32 +238,41 @@ export default function App() {
 
   return (
     <>
-      <div
-        className="flex flex-col items-center p-4 font-mono mt-16"
-        style={{ maxWidth: "100vw" }}
-      >
-        <p className="font-mono text-xl text-center mb-4">
-          Here is a summary of seismic activity recorded between December 14
-          2023 until December 15 2023, sourced exclusively from the{" "}
-          <span className="text-blue-900 underline" onClick={handleRedirect}>
-            USGS.
-          </span>
-        </p>
-        {allData.length && polarAreaData.labels !== undefined && (
-          <>
-            <div className="text-gray-700 text-base mb-4">
-              Total there are{" "}
-              <span className="font-bold text-xl">{allData.length}</span> data.
-            </div>
-            <PieChartVisualization data={pieChartData} />
-            <DoughnutChartVisualization data={doughnutData} />
-            <BarChartVisualization data={barChartData} />
-            <PolarAreaChartVisualization data={polarAreaData} />
-            <LineChartVisualization data={lineData} />
-            <BubbleChartVisualization data={bubbleData} />
-          </>
-        )}
-      </div>
+      {isLoading ? (
+        <div className="flex flex-col items-center flex-grow justify-center">
+          <Lottie
+            animationData={animationData}
+            style={{ width: "300px", height: "300px" }}
+          />
+        </div>
+      ) : (
+        <div className="flex flex-col items-center p-4 font-mono mt-16">
+          <p className="font-mono text-xl text-center mb-4">
+            Here is a summary of seismic activity recorded between December 14
+            2023 until December 15 2023, sourced exclusively from the{" "}
+            <span className="text-blue-900 underline" onClick={handleRedirect}>
+              USGS.
+            </span>
+          </p>
+          {allData.length && polarAreaData.labels !== undefined && (
+            <>
+              <div className="text-gray-700 text-base mb-4">
+                Total there are{" "}
+                <span className="font-bold text-xl">{allData.length}</span>{" "}
+                data.
+              </div>
+              <PieChartVisualization data={pieChartData} />
+              <DoughnutChartVisualization data={doughnutData} />
+              <BarChartVisualization data={barChartData} />
+              <PolarAreaChartVisualization data={polarAreaData} />
+              <LineChartVisualization data={lineData} />
+              <RadarChartVisualization data={radarData} />
+              <ScatterChartVisualization data={scatterData} />
+              <BubbleChartVisualization data={bubbleData} />
+            </>
+          )}
+        </div>
+      )}
     </>
   );
 }

@@ -13,7 +13,6 @@ export default function BubbleChartVisualization({ data }) {
   return (
     <div className="flex flex-col items-center  text-center mb-4">
       <div className="text-gray-700 text-base">
-        {" "}
         Data Latitude, Longitude, and Depth:{" "}
       </div>
       <div className="text-gray-500 text-sm">
