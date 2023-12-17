@@ -4,8 +4,10 @@ import DoughnutChartVisualization from "./components/DoughnutChartVisualization"
 import LineChartVisualization from "./components/LineChartVisualization";
 import BubbleChartVisualization from "./components/BubbleChartVisualization";
 import BarChartVisualization from "./components/BarChartVisualization";
+import PolarAreaChartVisualization from "./components/PolarAreaChartVisualizatio";
 import "./App.css";
 import axios from "axios";
+import { generateColors } from "./utils/commons";
 
 export default function App() {
   const [allData, setAllData] = useState([]);
@@ -14,14 +16,12 @@ export default function App() {
   const [doughnutData, setDoughnutData] = useState({});
   const [lineData, setLineData] = useState({});
   const [bubbleData, setBubbleData] = useState({});
-  const [isLoading, setIsLoading] = useState(false);
+  const [polarAreaData, setPolarAreaData] = useState({});
 
   const handleRedirect = () => {
     window.location.href = "https://www.usgs.gov/";
   };
   async function getData() {
-    setIsLoading(true);
-
     await axios
       .get(
         "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=2023-12-14&endtime=2023-12-15"
@@ -31,128 +31,112 @@ export default function App() {
       })
       .catch((error) => {
         console.error(error);
-      })
-      .finally(async () => {
-        setIsLoading(false);
       });
   }
 
-  function generateColors(n) {
-    var colors = [];
-    const uniqueBrightColors = [
-      "#3498db", // Blue
-      "#2ecc71", // Green
-      "#8e44ad", // Purple
-      "#2980b9", // Dark Blue
-      "#f39c12", // Orange
-      "#e74c3c", // Red
-      "#1abc9c", // Turquoise
-      "#d35400", // Rust
-      "#c0392b", // Maroon
-      "#16a085", // Teal
-    ];
-    for (let i = 0; i < n; i++) {
-      // Generate a random color in hexadecimal format
-      const c = uniqueBrightColors[i];
-      colors.push(c);
-    }
-
-    return colors;
-  }
-
   function buildToVisualizeData(objectData, type) {
-    var labels = "";
-    var values = "";
-    var colors = [];
+    const labels = Object.keys(objectData);
+    const values = Object.values(objectData);
+    let colors = [];
 
-    if (type === "pie") {
-      labels = Object.keys(objectData);
-      values = Object.values(objectData);
-      colors = generateColors(labels.length);
-      const data = {
-        labels: labels,
-        datasets: [
-          {
-            label: "Number of data",
-            data: values,
-            backgroundColor: colors,
-            borderColor: colors,
-            borderWidth: 1,
-          },
-        ],
-      };
+    switch (type) {
+      case "pie":
+        colors = generateColors(labels.length);
+        setPieChartData({
+          labels: labels,
+          datasets: [
+            {
+              label: "Number of data",
+              data: values,
+              backgroundColor: colors,
+              borderColor: colors,
+              borderWidth: 1,
+            },
+          ],
+        });
+        break;
 
-      setPieChartData(data);
-    } else if (type === "bar") {
-      labels = Object.keys(objectData);
-      values = Object.values(objectData);
-      const data = {
-        labels: labels,
-        datasets: [
-          {
-            label: "Sources",
-            data: values,
-            backgroundColor: "rgba(53, 162, 235, 0.5)",
-          },
-        ],
-      };
+      case "bar":
+        setBarChartData({
+          labels: labels,
+          datasets: [
+            {
+              label: "Sources",
+              data: values,
+              backgroundColor: "rgba(53, 162, 235, 0.5)",
+            },
+          ],
+        });
+        break;
 
-      setBarChartData(data);
-    } else if (type === "doughnut") {
-      labels = Object.keys(objectData);
-      values = Object.values(objectData);
-      colors = generateColors(labels.length);
-      const data = {
-        labels: labels,
-        datasets: [
-          {
-            label: "Number of data",
-            data: values,
-            backgroundColor: colors,
-            borderColor: colors,
-            borderWidth: 1,
-          },
-        ],
-      };
+      case "doughnut":
+        colors = generateColors(labels.length);
+        setDoughnutData({
+          labels: labels,
+          datasets: [
+            {
+              label: "Number of data",
+              data: values,
+              backgroundColor: colors,
+              borderColor: colors,
+              borderWidth: 1,
+            },
+          ],
+        });
+        break;
 
-      setDoughnutData(data);
-    } else if (type === "line") {
-      labels = Object.keys(objectData);
-      values = Object.values(objectData);
-      colors = generateColors(labels.length);
-      const data = {
-        labels: labels,
-        datasets: [
-          {
-            label: "magnitude",
-            data: values,
-            borderColor: "rgb(255, 99, 132)",
-            backgroundColor: "rgba(255, 99, 132, 0.5)",
-          },
-        ],
-      };
-      setLineData(data);
-    } else if (type == "bubble") {
-      const data = {
-        datasets: [
-          {
-            label: "Lat, Long, Depth",
-            data: objectData,
-            backgroundColor: "rgba(255, 99, 132, 0.5)",
-          },
-        ],
-      };
-      setBubbleData(data);
+      case "line":
+        colors = generateColors(labels.length);
+        setLineData({
+          labels: labels,
+          datasets: [
+            {
+              label: "magnitude",
+              data: values,
+              borderColor: "rgb(255, 99, 132)",
+              backgroundColor: "rgba(255, 99, 132, 0.5)",
+            },
+          ],
+        });
+        break;
+
+      case "bubble":
+        setBubbleData({
+          datasets: [
+            {
+              label: "Lat, Long, Depth",
+              data: objectData,
+              backgroundColor: "rgba(255, 99, 132, 0.5)",
+            },
+          ],
+        });
+        break;
+
+      default:
+        colors = generateColors(labels.length);
+        setPolarAreaData({
+          labels: labels,
+          datasets: [
+            {
+              label: "Number of data",
+              data: values,
+              backgroundColor: colors,
+              borderColor: colors,
+              borderWidth: 1,
+            },
+          ],
+        });
     }
   }
   function buildData() {
-    setIsLoading(true);
     var dataTemp = allData.slice();
     var pie = {};
     var doughnut = {};
     var line = {};
     var bubble = [];
     var bar = {};
+    var polarArea = {};
+    var loc = {};
 
     for (var i = 0; i < dataTemp.length; i++) {
       pie[dataTemp[i].properties.status] =
@@ -169,20 +153,33 @@ export default function App() {
 
       line[dataTemp[i].id] = dataTemp[i].properties.mag;
 
-      // handle sources
+      // cleansing the data by remove "," at first and last char
       var sourcesStr = dataTemp[i].properties.sources.slice(1, -1);
       var sourcesArr = sourcesStr.split(",");
       for (var ii = 0; ii < sourcesArr.length; ii++) {
         bar[sourcesArr[ii]] = (bar[sourcesArr[ii]] || 0) + 1;
       }
+
+      var typesStr = dataTemp[i].properties.types.slice(1, -1);
+      var typesArr = typesStr.split(",");
+      for (var iii = 0; iii < typesArr.length; iii++) {
+        polarArea[typesArr[iii]] = (polarArea[typesArr[iii]] || 0) + 1;
+      }
+
+      var locTemp = dataTemp[i].properties.place.includes(",")
+        ? dataTemp[i].properties.place.split(",")[1].slice(1)
+        : dataTemp[i].properties.place;
+      loc[locTemp] = (loc[locTemp] || 0) + 1;
     }
+
+    console.log(loc);
 
     buildToVisualizeData(pie, "pie");
     buildToVisualizeData(doughnut, "doughnut");
     buildToVisualizeData(line, "line");
     buildToVisualizeData(bubble, "bubble");
     buildToVisualizeData(bar, "bar");
-    setIsLoading(false);
+    buildToVisualizeData(polarArea, "polarArea");
   }
 
   useEffect(() => {
@@ -208,7 +205,7 @@ export default function App() {
             USGS.
           </span>
         </p>
-        {!isLoading && allData.length && pieChartData.labels !== undefined && (
+        {allData.length && polarAreaData.labels !== undefined && (
           <>
             <div className="text-gray-700 text-base mb-4">
               Total there are{" "}
@@ -216,9 +213,10 @@ export default function App() {
             </div>
             <PieChartVisualization data={pieChartData} />
             <DoughnutChartVisualization data={doughnutData} />
+            <BarChartVisualization data={barChartData} />
+            <PolarAreaChartVisualization data={polarAreaData} />
             <LineChartVisualization data={lineData} />
             <BubbleChartVisualization data={bubbleData} />
-            <BarChartVisualization data={barChartData} />
           </>
         )}
       </div>

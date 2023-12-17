@@ -27,7 +27,7 @@ export default function BarChartVisualization({ data }) {
         The ID of a data contributor. Identifies the network considered to be
         the preferred source of information for this event.
       </div>
-      <div style={{ width: "100vw" }}>
+      <div style={{ width: "375px" }}>
         <Bar data={data}></Bar>
       </div>
     </div>
