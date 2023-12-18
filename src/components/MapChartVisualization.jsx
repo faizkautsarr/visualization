@@ -2,7 +2,7 @@ import React from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
-export default function MapVisualization({ data }) {
+export default function MapChartVisualization({ data }) {
   const center = [51.505, -0.09]; // Coordinates for the center of the map
 
   return (

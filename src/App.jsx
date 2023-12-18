@@ -7,7 +7,7 @@ import BarChartVisualization from "./components/BarChartVisualization";
 import PolarAreaChartVisualization from "./components/PolarAreaChartVisualization";
 import ScatterChartVisualization from "./components/ScatterChartVisualization";
 import RadarChartVisualization from "./components/RadarChartVisualization";
-import MapVisualization from "./components/mapVisualization";
+import MapChartVisualization from "./components/MapChartVisualization";
 import "./App.css";
 import axios from "axios";
 import { generateColors } from "./utils/commons";
@@ -278,7 +278,7 @@ export default function App() {
               <BarChartVisualization data={barChartData} />
               <PolarAreaChartVisualization data={polarAreaData} />
               <LineChartVisualization data={lineData} />
-              <MapVisualization data={mapData} />
+              <MapChartVisualization data={mapData} />
               <RadarChartVisualization data={radarData} />
               <ScatterChartVisualization data={scatterData} />
               <BubbleChartVisualization data={bubbleData} />
