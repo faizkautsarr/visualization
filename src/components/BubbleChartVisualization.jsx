@@ -18,8 +18,6 @@ export default function BubbleChartVisualization({ data }) {
       <div className="text-gray-500 text-sm">
         Show latitude, longitude, and depth
       </div>
-
-      {/* <div className="text-gray-500 text-xs mt-2">Show 10 latest data only</div> */}
       <div style={{ width: "100vw" }}>
         <Bubble
           options={{

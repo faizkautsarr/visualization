@@ -12,6 +12,7 @@ import axios from "axios";
 import { generateColors } from "./utils/commons";
 import Lottie from "lottie-react";
 import animationData from "./assets/images/loader.json";
+import MapVisualization from "./components/mapVisualization";
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -20,6 +21,7 @@ export default function App() {
   const [barChartData, setBarChartData] = useState({});
   const [doughnutData, setDoughnutData] = useState({});
   const [lineData, setLineData] = useState({});
+  const [mapData, setMapData] = useState([]);
   const [bubbleData, setBubbleData] = useState({});
   const [radarData, setRadarData] = useState({});
   const [scatterData, setScatterData] = useState({});
@@ -167,10 +169,11 @@ export default function App() {
     var doughnut = {};
     var line = {};
     var polarArea = {};
-    var scatter = [];
+    var bar = {};
     var radar = {};
     var bubble = [];
-    var bar = {};
+    var scatter = [];
+    var map = [];
 
     for (var i = 0; i < dataTemp.length; i++) {
       pie[dataTemp[i].properties.status] =
@@ -205,6 +208,14 @@ export default function App() {
         polarArea[typesArr[iii]] = (polarArea[typesArr[iii]] || 0) + 1;
       }
 
+      map.push({
+        position: [
+          dataTemp[i].geometry.coordinates[1],
+          dataTemp[i].geometry.coordinates[0],
+        ],
+        popupText: dataTemp[i].properties.place,
+      });
+
       var radarTemp = dataTemp[i].properties.place.includes(",")
         ? dataTemp[i].properties.place.split(",")[1].slice(1)
         : dataTemp[i].properties.place;
@@ -219,6 +230,7 @@ export default function App() {
     buildToVisualizeData(polarArea, "polarArea");
     buildToVisualizeData(scatter, "scatter");
     buildToVisualizeData(radar, "radar");
+    setMapData(map);
 
     // for smoother behaviour
     setTimeout(() => {
@@ -266,6 +278,7 @@ export default function App() {
               <BarChartVisualization data={barChartData} />
               <PolarAreaChartVisualization data={polarAreaData} />
               <LineChartVisualization data={lineData} />
+              <MapVisualization data={mapData} />
               <RadarChartVisualization data={radarData} />
               <ScatterChartVisualization data={scatterData} />
               <BubbleChartVisualization data={bubbleData} />
