@@ -7,12 +7,12 @@ import BarChartVisualization from "./components/BarChartVisualization";
 import PolarAreaChartVisualization from "./components/PolarAreaChartVisualization";
 import ScatterChartVisualization from "./components/ScatterChartVisualization";
 import RadarChartVisualization from "./components/RadarChartVisualization";
+import MapVisualization from "./components/mapVisualization";
 import "./App.css";
 import axios from "axios";
 import { generateColors } from "./utils/commons";
 import Lottie from "lottie-react";
 import animationData from "./assets/images/loader.json";
-import MapVisualization from "./components/mapVisualization";
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
